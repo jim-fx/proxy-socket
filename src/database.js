@@ -13,8 +13,10 @@ const client = new MongoClient(MONGO_URL, {
 let db = new Promise((resolve, reject) => {
   // Use connect method to connect to the Server
   client.connect(function (err) {
-    if (err) reject(err);
-    else {
+    if (err) {
+      console.error(err);
+      reject(err);
+    } else {
       console.log("[MONGODB]: connected to " + new URL(MONGO_URL).hostname);
       resolve(client.db("dbName"));
     }

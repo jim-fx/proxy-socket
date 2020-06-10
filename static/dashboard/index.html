@@ -92,10 +92,9 @@
     </main>
 
     <script>
-      const socketServer =
-        "s" in window.location.protocol
-          ? "wss://"
-          : "ws://" + window.location.host;
+      const socketServer = window.location.protocol.includes("s")
+        ? "wss://"
+        : "ws://" + window.location.host;
 
       const logs = document.getElementById("logs");
       const form = document.querySelector("form");

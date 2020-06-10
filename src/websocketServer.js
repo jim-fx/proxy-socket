@@ -22,7 +22,7 @@ const handleMessage = (data) => {
   data.teamname = teamname;
 
   if (data.keep === true) {
-    db.saveMessage(data, teamname);
+    db.save(data, teamname);
   }
 
   broadcast(wss, data);
@@ -50,7 +50,7 @@ const listen = (server) =>
             data.teamname = teamname;
 
             if (data.keep === true) {
-              db.saveMessage(data, teamname);
+              db.save(data, teamname);
             }
 
             broadcast(wss, data, ws);

@@ -40,7 +40,7 @@ app.get("/api/:teamname", (req, res) => {
       })
       .status(400);
   } else {
-    res.json(db.getMessages(teamname));
+    res.json(db.get(teamname));
   }
 });
 

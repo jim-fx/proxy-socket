@@ -92,7 +92,11 @@
     </main>
 
     <script>
-      const host = window.location.host;
+      const socketServer =
+        "s" in window.location.protocol
+          ? "wss://"
+          : "ws://" + window.location.host;
+
       const logs = document.getElementById("logs");
       const form = document.querySelector("form");
       const teamname = document.getElementById("teamname");
@@ -101,7 +105,7 @@
       const msg = document.getElementById("msg");
       if ("msg" in localStorage) msg.value = localStorage.getItem("msg");
 
-      const dashws = new WebSocket("ws://" + host + "/db");
+      const dashws = new WebSocket(socketServer + "/db");
       dashws.onopen = function () {
         console.log("dashboard connected");
       };
@@ -114,7 +118,7 @@
         console.log("dashboard", JSON.parse(msg.data));
       });
 
-      const ws = new WebSocket("ws://" + host + "");
+      const ws = new WebSocket(socketServer);
       ws.onopen = function () {
         console.log("normal connected");
       };

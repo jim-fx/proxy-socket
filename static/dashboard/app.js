@@ -15,7 +15,6 @@ function EventEmitter() {
     on: function (event, cb) {
       cbs[event] = event in cbs ? [...cbs[event], cb] : [cb];
     },
-
     emit: function (event, data) {
       if (event in cbs) {
         for (var i = 0; i < cbs[event].length; i++) {
@@ -36,7 +35,9 @@ function createWSConnection(url, _listener) {
     listener.emit("open");
   };
   ws.onmessage = function (msg) {
-    listener.emit("msg", msg);
+    try {
+      listener.emit("msg", JSON.parse(msg.data));
+    } catch (error) {}
   };
 
   listener.send = function (msg) {
@@ -66,7 +67,7 @@ dashws.on("open", function () {
 });
 
 dashws.on("msg", function (msg) {
-  logs.innerHTML += msg.data + "<br>";
+  logs.innerHTML += JSON.stringify(msg) + "<br>";
 });
 
 var ws = createWSConnection(socketServer);

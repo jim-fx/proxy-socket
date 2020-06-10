@@ -20,15 +20,20 @@ const handleMessage = (data, socket) => {
   if (!teamname) teamname = "unknown";
   data.teamname = teamname;
 
-  console.log(data, typeof data);
+  broadcast(wss, data, socket);
 
   if (data.keep === true) {
     db.save(data, teamname);
   }
 
-  broadcast(wss, data, socket);
-  broadcast(dashboard, data, socket);
+  if (data.display === true) {
+    broadcast(dashboard, data, socket);
+  }
 };
+
+setInterval(() => {
+  handleMessage({ test: "test", display: true });
+}, 5000);
 
 const listen = (server) =>
   server.on("upgrade", (request, socket, head) => {

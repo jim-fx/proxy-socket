@@ -35,6 +35,6 @@ module.exports = {
   },
   get: async (teamname) => {
     await db;
-    return db.find({ teamname });
+    return db.findOne({ teamname });
   },
 };

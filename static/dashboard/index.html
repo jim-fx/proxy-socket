@@ -17,39 +17,59 @@
       form {
         padding: 10px;
         border-radius: 5px;
-        background-color: rgb(187, 187, 187);
+        outline: solid medium black;
+      }
+
+      input {
+        background-color: white;
+        display: block;
+        padding: 10px;
+        border: solid medium;
+        margin: 11px 0px;
       }
 
       #logs {
-        background-color: rgb(187, 187, 187);
         padding: 10px;
         border-radius: 5px;
+        max-height: 200px;
+        overflow-y: auto;
+        outline: solid medium black;
       }
 
       #logs > div {
         white-space: nowrap;
-        border-bottom: solid thin black;
+        border-bottom: solid medium black;
+      }
+
+      hr {
+        border: none;
+        border-top: solid medium black;
       }
 
       input {
         background-color: white;
       }
+
+      button[type="submit"] {
+        background-color: black;
+        color: white;
+        border-style: none;
+        padding: 10px;
+      }
     </style>
-    <link rel="stylesheet" href="/css/milligram.css" />
     <title>KISD&COCO websocket proxy server</title>
   </head>
   <body>
     <main>
       <h1>KISD + COCO = ❤</h1>
 
-      <h2>Dashboard</h2>
+      <h2>dashboard</h2>
 
+      <h3>logs</h3>
       <div id="logs"></div>
 
-      <h2>Testing</h2>
-
+      <h3>testing</h3>
       <form>
-        <h3>websocket</h3>
         <label for="teamname">teamname</label>
         <input
           required="true"
@@ -64,8 +84,9 @@
           type="text"
           name=""
           id="msg"
-          placeholder='{"test": okay}'
+          placeholder='{"test": "okay"}'
         />
+        <hr />
         <button type="submit">send</button>
       </form>
     </main>

@@ -1,13 +1,41 @@
-const db = {};
+const assert = require("assert");
+const { url } = require("inspector");
+const MongoClient = require("mongodb").MongoClient;
+
+// Connection URL
+const { MONGO_URL = "mongodb://localhost:27017" } = process.env;
+
+// Create a new MongoClient
+const client = new MongoClient(MONGO_URL, {
+  useUnifiedTopology: true,
+});
+
+let db = new Promise((resolve, reject) => {
+  // Use connect method to connect to the Server
+  client.connect(function (err) {
+    if (err) reject(err);
+    else {
+      console.log("[MONGODB]: connected to " + new URL(MONGO_URL).hostname);
+
+      resolve(client.db("dbName"));
+
+      client.close();
+    }
+  });
+});
 
 module.exports = {
-  save: (msg, teamname) => {
-    console.log("save", msg, teamname);
-    msg.created_at = Date.now();
-    if (teamname in db) db[teamname].push(msg);
-    else db[teamname] = [msg];
+  save: async (msg, teamname = "unknown") => {
+    // Make sure we dont work on a reference
+    const obj = JSON.parse(JSON.stringify(msg));
+    obj.created_at = Date.now();
+
+    await db;
+
+    db.collection(teamname + "_msgs").insertOne(obj);
   },
-  get: (teamname) => {
-    return db[teamname];
+  get: async (teamname) => {
+    await db;
+    return db.find({ teamname });
   },
 };

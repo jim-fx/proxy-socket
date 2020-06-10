@@ -10,7 +10,7 @@ const client = new MongoClient(MONGO_URL, {
   useUnifiedTopology: true,
 });
 
-let db = new Promise((resolve, reject) => {
+let dbPromise = new Promise((resolve, reject) => {
   // Use connect method to connect to the Server
   client.connect(function (err) {
     if (err) {
@@ -18,23 +18,25 @@ let db = new Promise((resolve, reject) => {
       reject(err);
     } else {
       console.log("[MONGODB]: connected to " + new URL(MONGO_URL).hostname);
-      resolve(client.db("dbName"));
+      resolve(client.db("kisd+coco"));
     }
   });
 });
 
 module.exports = {
   save: async (msg, teamname = "unknown") => {
+    console.log("saveing", msg);
+
     // Make sure we dont work on a reference
     const obj = JSON.parse(JSON.stringify(msg));
-    obj.created_at = Date.now();
+    obj.created_at = new Date();
 
-    await db;
+    const db = await dbPromise;
 
     db.collection(teamname + "_msgs").insertOne(obj);
   },
   get: async (teamname) => {
-    await db;
-    return db.findOne({ teamname });
+    const db = await dbPromise;
+    return db.collection(teamname + "_msgs").find();
   },
 };

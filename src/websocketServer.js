@@ -20,6 +20,8 @@ const handleMessage = (data, socket) => {
   if (!teamname) teamname = "unknown";
   data.teamname = teamname;
 
+  console.log(data, typeof data);
+
   if (data.keep === true) {
     db.save(data, teamname);
   }
@@ -37,7 +39,11 @@ const listen = (server) =>
     if (pathname === "/") {
       wss.handleUpgrade(request, socket, head, function done(ws) {
         ws.send(`{ "connected": true }`);
-        ws.on("message", (msg) => handleMessage(msg, ws));
+        ws.on("message", (msg) => {
+          try {
+            handleMessage(JSON.parse(msg), ws);
+          } catch (error) {}
+        });
       });
     } else if (pathname === "/db") {
       dashboard.handleUpgrade(request, socket, head, function done(ws) {

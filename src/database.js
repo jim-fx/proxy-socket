@@ -35,8 +35,16 @@ module.exports = {
 
     db.collection(teamname + "_msgs").insertOne(obj);
   },
-  get: async (teamname) => {
-    const db = await dbPromise;
-    return db.collection(teamname + "_msgs").find();
-  },
+  get: (teamname) =>
+    new Promise(async (res, rej) => {
+      const db = await dbPromise;
+
+      db.collection(teamname + "_msgs")
+        .find({})
+        .toArray(function (err, result) {
+          console.log(result);
+          if (err) rej(err);
+          res(result);
+        });
+    }),
 };

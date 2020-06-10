@@ -16,10 +16,7 @@ let db = new Promise((resolve, reject) => {
     if (err) reject(err);
     else {
       console.log("[MONGODB]: connected to " + new URL(MONGO_URL).hostname);
-
       resolve(client.db("dbName"));
-
-      client.close();
     }
   });
 });

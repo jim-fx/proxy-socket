@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        font-family: monospace !important;
+        color: black !important;
+      }
+
+      main {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      h2 {
+        width: 100%;
+        border-bottom: solid medium black;
+        padding-bottom: 2px;
+      }
+    </style>
+    <link rel="stylesheet" href="milligram.css" />
+    <title>KISD&COCO websocket proxy server</title>
+  </head>
+  <body>
+    <main>
+      <h1>KISD + COCO = ❤</h1>
+
+      <b>Inhalt:</b>
+      <ul>
+        <a href="#why">
+          <li>Why</li>
+        </a>
+        <a href="#security">
+          <li>Security</li>
+        </a>
+        <a href="#privacy">
+          <li>Privacy</li>
+        </a>
+        <a href="#how">
+          <li>How</li>
+          <ul>
+            <li>
+              <a href="#extras">Extras</a>
+            </li>
+          </ul>
+        </a>
+        <a href="#how-v2">
+          <li>How v2</li>
+        </a>
+      </ul>
+
+      <h2 id="why">Why</h2>
+
+      <p>
+        Naja, ich denke viele von uns werden in den nächsten Tagen denselben
+        Code schreiben, (also dieses ganze websocket zeugs) warum nicht einfach
+        nur einmal?
+      </p>
+
+      <h2 id="security">Security</h2>
+
+      <p>
+        Gibts nicht, verbindet nix gefährliches mit den websockets, and
+        <b>Don't be an asshole.</b>
+      </p>
+
+      <h2 id="privacy">Privacy</h2>
+      <p>
+        Heroku gehört zu Salesforce, einer der größten Cloud Anbieter. Nach
+        einiger Recherche, hab ich dieses
+        <a
+          href="https://www.salesforce.com/content/dam/web/en_us/www/documents/legal/misc/heroku-security-privacy-and-architecture.pdf"
+          >Dokument</a
+        >
+        zu dem Theme Heroku & Dataprocessing gefunden.
+      </p>
+
+      <code>
+        <i>
+          <b>Excerpt:</b> Salesforce may track and analyze the usage of the
+          Heroku Services for purposes of security and helping Salesforce
+          improve both the Heroku Services and the user experience in using the
+          Heroku Services. For example, we may use this information to
+          understand and analyze trends or track which of our features are used
+          most often to improve product functionality. Salesforce may share
+          anonymous usage data with Salesforce’s service providers for the
+          purpose of helping Salesforce in such tracking, analysis, and
+          improvements. Additionally, Salesforce may share such anonymous usage
+          data on an aggregate basis in the normal course of operating our
+          business; for example, we may share information publicly to show
+          trends about the general use of our services
+        </i>
+      </code>
+
+      <p>
+        Leider gibt es keine genaueren Angaben dazu was Salesforce tracked, aber
+        ich vermute die ip + user agent headers. Ist jedem selber überlassen
+        wie/ob er das ok findet.
+      </p>
+
+      <h2 id="how">How</h2>
+
+      Der Server reicht einfach alle POST requests an /api/{teamname} an alle
+      verbundenen websockets weiter. Außerdem werden auch alle gesendeten
+      Websocket Messages an alle verbundenen Websockets gebroadcasted.
+
+      <br />
+      <br />
+
+      <pre>
+        <code>
+          POST /api/blue HTTP/1.1
+          Content-Type: application/json
+          {
+            "action": "button1"
+          }
+        </code>
+      </pre>
+
+      <br />
+
+      <h3 id="extras">Extras</h3>
+
+      <ul>
+        <li>
+          <b>Vorratsdatenspeicherung</b>
+          <p>
+            Um mehr Use Cases zu ermöglichen ist es möglich die messages
+            speichern zu lassen:
+          </p>
+          <pre>
+              <code>
+                POST /api/blue HTTP/1.1
+                Content-Type: application/json
+                {
+                  <code><b><i>"keep": true,</i></b></code>
+                  "action": "button1"
+                }
+              </code>
+            </pre>
+          <p>
+            Dies führt dazu das die message in einer MongoDB Datenbank
+            gespeichert wird, und dann später per GET request unter
+            /api/{teamname} erreichbar ist. Außerdem wird die message dann auf
+            dem Dashboard angezeigt:
+          </p>
+        </li>
+
+        <li>
+          <a href="/dashboard"> <b>Dashboard</b></a>
+          <p>
+            Unter der URL /dashboard ist eine live Anzeige aller eingehenden
+            Nachrichten zu sehen. Dies ist wie auch bei der
+            Vorratsdatenspeicherung ein opt-in system:
+          </p>
+          <pre>
+            <code>
+              POST /api/blue HTTP/1.1
+              Content-Type: application/json
+              {
+                <code><b><i>"display": true,</i></b></code>
+                "action": "button1"
+              }
+            </code>
+          </pre>
+        </li>
+      </ul>
+
+      <h2 id="how-v2">HOW v2</h2>
+
+      <p>
+        Das ist ja alles schön und gut, aber wie verbinde ich mich jetzt damit?
+      </p>
+
+      <a href="https://pypi.org/project/websocket_client/">
+        <h3>Python</h3>
+      </a>
+      <pre>
+        <code>
+          import websocket
+          
+          ws = websocket.WebSocket()
+          ws.connect("ws://example.com")
+
+        </code>
+      </pre>
+
+      <a
+        href="https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_client_applications"
+      >
+        <h3>Javascript (Browser)</h3>
+      </a>
+      <pre>
+        <code>
+          const webSocket = new WebSocket("ws://example.com");
+
+          exampleSocket.onmessage = function (event) {
+            console.log(event.data);
+          }
+        </code>
+      </pre>
+
+      <a href="https://www.npmjs.com/package/ws#usage-examples">
+        <h3>Javascript (Node.js)</h3>
+      </a>
+
+      <i>Braucht die ws library (npm i -D ws | yarn add -D ws)</i>
+
+      <pre>
+        <code>
+          const WebSocket = require('ws');
+ 
+          const ws = new WebSocket('ws://example.com');
+
+          ws.on('message', function incoming(data) {
+            console.log(data);
+          });
+        </code>
+      </pre>
+    </main>
+
+    <link rel="stylesheet" href="css/rainbow.css" />
+    <script src="js/highlight.min.js"></script>
+    <script>
+      hljs.initHighlightingOnLoad();
+    </script>
+  </body>
+</html>

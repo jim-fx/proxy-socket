@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        font-family: monospace !important;
+        color: black !important;
+      }
+
+      main {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      form {
+        padding: 10px;
+        border-radius: 5px;
+        background-color: rgb(187, 187, 187);
+      }
+
+      #logs {
+        background-color: rgb(187, 187, 187);
+        padding: 10px;
+        border-radius: 5px;
+      }
+
+      #logs > div {
+        white-space: nowrap;
+        border-bottom: solid thin black;
+      }
+
+      input {
+        background-color: white;
+      }
+    </style>
+    <link rel="stylesheet" href="/css/milligram.css" />
+    <title>KISD&COCO websocket proxy server</title>
+  </head>
+  <body>
+    <main>
+      <h1>KISD + COCO = ❤</h1>
+
+      <h2>Dashboard</h2>
+
+      <div id="logs"></div>
+
+      <h2>Testing</h2>
+
+      <form>
+        <h3>websocket</h3>
+        <label for="teamname">teamname</label>
+        <input
+          required="true"
+          type="text"
+          name=""
+          id="teamname"
+          placeholder="blue"
+        />
+        <label for="msg">msg</label>
+        <input
+          required="true"
+          type="text"
+          name=""
+          id="msg"
+          placeholder='{"test": okay}'
+        />
+        <button type="submit">send</button>
+      </form>
+    </main>
+
+    <script>
+      const logs = document.getElementById("logs");
+      const form = document.querySelector("form");
+      const teamname = document.getElementById("teamname");
+      if ("teamname" in localStorage)
+        teamname.value = localStorage.getItem("teamname");
+      const msg = document.getElementById("msg");
+      if ("msg" in localStorage) msg.value = localStorage.getItem("msg");
+
+      const dashws = new WebSocket("ws://localhost:8080/db");
+      dashws.onopen = function () {
+        console.log("dashboard connected");
+      };
+      dashws.onclose = function () {
+        alert("dashboard ws disconnected, reloading now");
+        window.location.reload();
+      };
+      dashws.addEventListener("message", function (msg) {
+        logs.innerHTML += msg.data + "<br>";
+        console.log("dashboard", JSON.parse(msg.data));
+      });
+
+      const ws = new WebSocket("ws://localhost:8080");
+      ws.onopen = function () {
+        console.log("normal connected");
+      };
+      ws.onclose = function () {
+        alert("ws disconnected, reloading now");
+        window.location.reload();
+      };
+
+      form.addEventListener("submit", (ev) => {
+        ev.preventDefault();
+
+        const name = teamname.value;
+        const m = msg.value;
+
+        localStorage.setItem("teamname", name);
+        localStorage.setItem("msg", m);
+
+        const s = JSON.stringify({
+          display: true,
+          teamname: name,
+          msg: m,
+        });
+
+        console.log("sending ", s);
+
+        ws.send(s);
+      });
+    </script>
+  </body>
+</html>

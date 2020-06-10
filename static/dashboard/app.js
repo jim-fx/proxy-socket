@@ -49,7 +49,7 @@ function createWSConnection(url, _listener) {
     setTimeout(function () {
       listener.send = undefined;
       console.log("socket " + url + " has disconnected, reconnecting...");
-      createWSConnection(url, obj);
+      createWSConnection(url, listener);
     }, 1000);
   };
 

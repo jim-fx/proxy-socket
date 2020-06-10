@@ -31,10 +31,6 @@ const handleMessage = (data, socket) => {
   }
 };
 
-setInterval(() => {
-  handleMessage({ test: "test", display: true });
-}, 5000);
-
 const listen = (server) =>
   server.on("upgrade", (request, socket, head) => {
     const pathname = url.parse(request.url).pathname;

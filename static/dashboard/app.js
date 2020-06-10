@@ -53,7 +53,7 @@ function createWSConnection(url, _listener) {
     }, 1000);
   };
 
-  return obj;
+  return listener;
 }
 
 var socketServer =

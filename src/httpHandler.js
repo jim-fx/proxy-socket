@@ -10,7 +10,7 @@ app.use(express.static(path.resolve(__dirname, "../static")));
 
 app.use(bodyParser.json());
 
-app.post("/api/:teamname", (req, res) => {
+function assureTeamname(req, res, next) {
   const { teamname = false } = req.params;
   if (!teamname || teamname.length === 0) {
     res
@@ -20,35 +20,30 @@ app.post("/api/:teamname", (req, res) => {
       })
       .status(400);
   } else {
-    req.body.teamname = teamname;
-    ws.handleMessage(req.body);
-
-    res.json({
-      teamname,
-      received: true,
-    });
+    next();
   }
+}
+
+app.post("/api/:teamname", assureTeamname, (req, res) => {
+  const { teamname } = req.params;
+  req.body.teamname = teamname;
+
+  ws.handleMessage(req.body);
+
+  res.json({
+    teamname,
+    received: true,
+  });
 });
 
-app.get("/api/:teamname", (req, res) => {
-  const { teamname = false } = req.params;
-  if (!teamname || teamname.length === 0) {
-    res
-      .json({
-        message:
-          "Teamname seems to be missing or malformed, pls get /api/{teamname}",
-      })
-      .status(400);
-  } else {
-    res.json(db.get(teamname));
-  }
-});
+app.get("/api/:teamname", assureTeamname, async (req, res) => {
+  const { teamname } = req.params;
 
-const listeners = {};
+  const msgs = await db.get(teamname);
+
+  res.json(msgs);
+});
 
 module.exports = {
   handler: app,
-  on: (event, cb) => {
-    listeners[event] = event in listeners ? [...listeners.event, cb] : [cb];
-  },
 };

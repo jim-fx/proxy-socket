@@ -6,17 +6,16 @@ const url = require("url");
 const wss = new WebSocket.Server({ noServer: true });
 const dashboard = new WebSocket.Server({ noServer: true });
 
-function broadcast(server, data, ws) {
+function broadcast(socketServer, data, socket) {
   const msg = JSON.stringify(data);
-
-  server.clients.forEach(function each(client) {
-    if (client !== ws && client.readyState === WebSocket.OPEN) {
+  socketServer.clients.forEach(function each(client) {
+    if (client !== socket && client.readyState === WebSocket.OPEN) {
       client.send(msg);
     }
   });
 }
 
-const handleMessage = (data) => {
+const handleMessage = (data, socket) => {
   let { teamname = data.team } = data;
   if (!teamname) teamname = "unknown";
   data.teamname = teamname;
@@ -25,39 +24,20 @@ const handleMessage = (data) => {
     db.save(data, teamname);
   }
 
-  broadcast(wss, data);
-  broadcast(dashboard, data);
+  broadcast(wss, data, socket);
+  broadcast(dashboard, data, socket);
 };
 
 const listen = (server) =>
   server.on("upgrade", (request, socket, head) => {
     const pathname = url.parse(request.url).pathname;
 
+    console.log("[SOCKET] server connected on " + pathname);
+
     if (pathname === "/") {
       wss.handleUpgrade(request, socket, head, function done(ws) {
         ws.send(`{ "connected": true }`);
-
-        ws.on("message", function incoming(msg) {
-          try {
-            const data = JSON.parse(msg);
-
-            if (data.keep || data.display) {
-              broadcast(dashboard, data);
-            }
-
-            let { teamname = data.team } = data;
-            if (!teamname) teamname = "unknown";
-            data.teamname = teamname;
-
-            if (data.keep === true) {
-              db.save(data, teamname);
-            }
-
-            broadcast(wss, data, ws);
-          } catch (error) {
-            console.log(error);
-          }
-        });
+        ws.on("message", (msg) => handleMessage(msg, ws));
       });
     } else if (pathname === "/db") {
       dashboard.handleUpgrade(request, socket, head, function done(ws) {

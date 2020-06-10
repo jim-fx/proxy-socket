@@ -92,6 +92,7 @@
     </main>
 
     <script>
+      const host = window.location.host;
       const logs = document.getElementById("logs");
       const form = document.querySelector("form");
       const teamname = document.getElementById("teamname");
@@ -100,7 +101,7 @@
       const msg = document.getElementById("msg");
       if ("msg" in localStorage) msg.value = localStorage.getItem("msg");
 
-      const dashws = new WebSocket("ws://localhost:8080/db");
+      const dashws = new WebSocket("ws://" + host + "/db");
       dashws.onopen = function () {
         console.log("dashboard connected");
       };
@@ -113,7 +114,7 @@
         console.log("dashboard", JSON.parse(msg.data));
       });
 
-      const ws = new WebSocket("ws://localhost:8080");
+      const ws = new WebSocket("ws://" + host + "");
       ws.onopen = function () {
         console.log("normal connected");
       };

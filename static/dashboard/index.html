@@ -129,21 +129,31 @@
       form.addEventListener("submit", (ev) => {
         ev.preventDefault();
 
+        let m = msg.value;
+
+        try {
+          m = JSON.parse(m);
+        } catch (err) {
+          //ignore this
+        }
+
         const name = teamname.value;
-        const m = msg.value;
 
         localStorage.setItem("teamname", name);
         localStorage.setItem("msg", m);
 
-        const s = JSON.stringify({
-          display: true,
-          teamname: name,
-          msg: m,
-        });
-
-        console.log("sending ", s);
-
-        ws.send(s);
+        if (typeof m === "object") {
+          m.display = true;
+          (m.teamname = name), ws.send(JSON.stringify(m));
+        } else {
+          ws.send(
+            JSON.stringify({
+              display: true,
+              teamname: teamname,
+              msg: m,
+            })
+          );
+        }
       });
     </script>
   </body>

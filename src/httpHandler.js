@@ -4,6 +4,9 @@ const app = express();
 const ws = require("./websocketServer");
 const db = require("./database");
 const bodyParser = require("body-parser");
+const cors = require("cors");
+
+app.use(cors());
 
 // Handle static website
 app.use(express.static(path.resolve(__dirname, "../static")));

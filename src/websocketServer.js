@@ -39,16 +39,14 @@ const listen = (server) =>
 
     if (pathname === "/") {
       wss.handleUpgrade(request, socket, head, function done(ws) {
-        ws.send(`{ "connected": true }`);
         ws.on("message", (msg) => {
           try {
             handleMessage(JSON.parse(msg), ws);
-          } catch (error) {}
+          } catch (error) { }
         });
       });
     } else if (pathname === "/db") {
       dashboard.handleUpgrade(request, socket, head, function done(ws) {
-        ws.send(`{ "connected": true }`);
       });
     } else {
       socket.destroy();
